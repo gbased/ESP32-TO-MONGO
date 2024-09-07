@@ -2,17 +2,6 @@ import paho.mqtt.client as mqtt
 from pymongo import MongoClient
 import json
 
-# Настройки MongoDB
-mongo_client = MongoClient('mongodb://localhost:27017/')
-db = mongo_client['sensor_data']
-collection = db['dht11_readings']
-
-# Настройки MQTT
-mqtt_broker = 'localhost'
-mqtt_port = 1883
-mqtt_user = 'mqtt_user'
-mqtt_password = '8218'
-mqtt_topic = 'sensor/dht11'
 
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code " + str(rc))
@@ -29,11 +18,26 @@ def on_message(client, userdata, msg):
     except Exception as e:
         print(f"Failed to save data to MongoDB: {e}")
 
-client = mqtt.Client()
-client.username_pw_set(mqtt_user, mqtt_password)
-client.on_connect = on_connect
-client.on_message = on_message
+def main():
+    mongo_client = MongoClient('mongodb://localhost:27017/')
+    db = mongo_client['sensor_data']
+    collection = db['dht11_readings']
 
-client.connect(mqtt_broker, mqtt_port, 60)
+    mqtt_broker = 'localhost'
+    mqtt_port = 1883
+    mqtt_user = 'mqtt_user'
+    mqtt_password = '8218'
+    mqtt_topic = 'sensor/dht11'
 
-client.loop_forever()
+    client = mqtt.Client()
+    client.username_pw_set(mqtt_user, mqtt_password)
+    client.on_connect = on_connect
+    client.on_message = on_message
+
+    client.connect(mqtt_broker, mqtt_port, 60)
+
+    client.loop_forever()
+
+
+if __name__ == '__main__':
+    main()
